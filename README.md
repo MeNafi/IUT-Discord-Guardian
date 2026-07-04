@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ PowerCord
+# **🤖 Elie**
 
 ### AI-Powered Discord-Based Smart Office Energy Management System
 
@@ -228,20 +228,6 @@ PowerCord includes an ESP32 hardware simulation using Wokwi.
 
 https://wokwi.com/projects/468550580082556929
 
-If using localhost, expose the backend using ngrok.
-
-```bash
-ngrok http 5000
-```
-
-Replace
-
-```cpp
-const char* BACKEND_URL = "...";
-```
-
-with your ngrok URL.
-
 ---
 
 # Discord Server
@@ -261,25 +247,39 @@ Invite the bot and use the available commands to monitor the office in real time
 # Live Data Flow
 
 ```
-ESP32
-     │
-     ▼
-
-Express API
-
-     │
-
-PostgreSQL
-
-     │
-
-Socket.IO
-
-     │
-
- ┌─────────────┬───────────────┐
- ▼             ▼
-Dashboard   Discord Bot
+                         ┌─────────────────────┐
+                         │    ESP32 (Wokwi)    │
+                         │  Hardware Simulator │
+                         └──────────┬──────────┘
+                                    │
+                           HTTP Sensor Data
+                                    │
+                                    ▼
+                 ┌────────────────────────────────┐
+                 │      Express.js Backend        │
+                 │  REST API + Business Logic     │
+                 └──────────────┬─────────────────┘
+                                │
+                         Prisma ORM
+                                │
+                                ▼
+                 ┌────────────────────────────────┐
+                 │      PostgreSQL Database       │
+                 │     Single Source of Truth     │
+                 └──────────────┬─────────────────┘
+                                │
+                     Socket.IO + REST API
+                                │
+              ┌─────────────────┴─────────────────┐
+              │                                   │
+              ▼                                   ▼
+┌──────────────────────────┐         ┌──────────────────────────┐
+│ React Dashboard          │         │ Discord Bot (Elie)       │
+│ • Office Layout          │         │ • !status                │
+│ • Live Devices           │         │ • !room                  │
+│ • Energy Usage           │         │ • !usage                 │
+│ • Real-time Alerts       │         │ • Auto Notifications     │
+└──────────────────────────┘         └──────────────────────────┘
 ```
 
 ---
