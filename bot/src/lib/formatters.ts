@@ -2,11 +2,7 @@ import { FullSnapshot, RoomSnapshot, UsageResponse } from "./api";
 
 // Turns "drawing" -> "Drawing", "work1" -> "Work 1"
 export function humanizeRoomName(name: string): string {
-
-  // First, handle lowercase strings with numbers like work1 -> work 1
   const spaced = name.replace(/([a-zA-Z])([0-9])/g, "$1 $2");
-
-  // Capitalize the first letter of each word
   return spaced
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -19,62 +15,70 @@ function summarizeRoom(room: RoomSnapshot): string {
   const lightsOn = room.devices.filter((d) => d.type === "light" && d.isOn).length;
 
   if (fansOn === 0 && lightsOn === 0) {
-    return `⚫ All devices are OFF`;
+    return `💤 \` All Devices Off \``;
   }
 
   const parts: string[] = [];
-  if (fansOn > 0) parts.push(`💨 ${fansOn} Fan${fansOn > 1 ? "s" : ""} ON`);
-  if (lightsOn > 0) parts.push(`💡 ${lightsOn} Light${lightsOn > 1 ? "s" : ""} ON`);
+  if (fansOn > 0) parts.push(`💨 **${fansOn}** Fan${fansOn > 1 ? "s" : ""}`);
+  if (lightsOn > 0) parts.push(`💡 **${lightsOn}** Light${lightsOn > 1 ? "s" : ""}`);
 
-  return parts.join(" | ");
+  return `⚡ Active: ${parts.join("  |  ")}`;
 }
 
 // Gives a structured, beautifully aligned breakdown of all rooms
 export function formatStatus(snapshot: FullSnapshot): string {
-  let output = "\n🏢 **Office IoT System — Live Status**\n";
-  output += "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n";
+  let output = "\n### 🏢 OFFICE IoT SYSTEM — LIVE STATUS\n";
+  output += "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
 
   const roomBlocks = snapshot.rooms.map((room) => {
     const summary = summarizeRoom(room);
     return `📍 **${humanizeRoomName(room.name)}**\n> ${summary}`;
   });
 
-  return output + roomBlocks.join("\n\n");
+  return output + roomBlocks.join("\n\n") + "\n";
 }
 
-// Formats a single room details cleanly with lists
-// Formats a single room details cleanly with perfect alignment
+// Formats a single room details cleanly with perfect custom alignment
 export function formatRoom(room: RoomSnapshot): string {
-  const title = `\n📍 **Room Profile: ${humanizeRoomName(room.name).toUpperCase()}**`;
-  const divider = "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯";
+  const title = `\n### 📍 ROOM PROFILE: ${humanizeRoomName(room.name).toUpperCase()}`;
+  const divider = "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾";
   
-  const deviceLines = room.devices
+  // Sorting devices so that ON devices float to the top
+  const sortedDevices = [...room.devices].sort((a, b) => Number(b.isOn) - Number(a.isOn));
+
+  const deviceLines = sortedDevices
     .map((d) => {
-      const indicator = d.isOn ? "🟢" : "▪️"; 
+     
+      // Discarding heavy red circles for sharp custom markers
+      const indicator = d.isOn ? "🔹" : "▫️"; 
       const typeIcon = d.type === "fan" ? "💨" : "💡";
-      const statusText = d.isOn ? "**ON**" : "OFF";
       
-      return `${indicator} ${typeIcon} **${d.name}** — ${statusText} (${d.ratedWatts}W)`;
+      // Inline styling wrapper for a tabular grid feel inside regular chat
+      const deviceName = `**${d.name}**`.padEnd(14, " ");
+      const statusText = d.isOn ? "` ON `" : "`OFF`";
+      const wattsText = `\` ${d.ratedWatts}W \``;
+
+      return `${indicator}  ${typeIcon}  ${deviceName} ⎯⎯  ${statusText}  ${wattsText}`;
     })
     .join("\n");
 
-  return `${title}\n${divider}\n${deviceLines}`;
+  return `${title}\n${divider}\n${deviceLines}\n`;
 }
 
-// Formats energy usage with clean layout and bold stats
+// Formats energy usage with grid-like layout and clean stats
 export function formatUsage(usage: UsageResponse): string {
-  let output = "\n⚡ **Real-Time Energy Analytics**\n";
-  output += "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n";
-  output += `• **Total Active Load :** \`${usage.totalWattsNow.toFixed(0)} W\`\n`;
-  output += `• **Accumulated Today :** \`${usage.estimatedKwhToday} kWh\`\n\n`;
+  let output = "\n### ⚡ REAL-TIME ENERGY ANALYTICS\n";
+  output += "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
+  output += `• **Total Active Load :**  \` ${usage.totalWattsNow.toFixed(0)} W \`\n`;
+  output += `• **Accumulated Today :**  \` ${usage.estimatedKwhToday} kWh \`\n\n`;
   
-  output += "📊 **Power Distribution Per Room:**\n";
+  output += "📊 **Power Distribution Profile:**\n";
   output += "```yaml\n";
   
   const perRoomLines = usage.perRoom
     .map((r) => {
-      const roomName = humanizeRoomName(r.room).padEnd(12, " ");
-      return `${roomName}: ${r.watts.toFixed(0)} W`;
+      const roomName = humanizeRoomName(r.room).padEnd(14, " ");
+      return `${roomName} : ${r.watts.toFixed(0)} W`;
     })
     .join("\n");
 
