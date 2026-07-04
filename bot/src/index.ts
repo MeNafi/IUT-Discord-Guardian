@@ -50,14 +50,27 @@ client.on("messageCreate", async (message) => {
     case "usage":
       await handleUsage(message);
       break;
-    case "help":
-      await message.reply(
-        "Commands:\n" +
-          "`!status` — quick summary of every room\n" +
-          "`!room <drawing|work1|work2>` — details for one room\n" +
-          "`!usage` — live power draw + today's estimated kWh"
-      );
+    case "help": {
+      
+      // Provide a structured help message with command descriptions
+      let helpOutput = "\n### 🤖 IoT BOT — COMMAND DIRECTORY\n";
+      helpOutput += "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
+      helpOutput += "Use these commands to interact with the energy monitor:\n\n";
+
+      helpOutput += `🔹 \` ${PREFIX}status \` ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n`;
+      helpOutput += "> Get a quick active device snapshot of every room.\n\n";
+
+      helpOutput += `🔹 \` ${PREFIX}usage \`  ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n`;
+      helpOutput += "> View live power draw (W) and estimated consumption (kWh).\n\n";
+
+      helpOutput += `🔹 \` ${PREFIX}room <name> \` ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n`;
+      helpOutput += "> Inspect the device tracking for a specific area. And there is a 3 option\n";
+      helpOutput += "> _Options: `!room drawing`  |  `!room work1`  |  `!room work2`_\n";
+      helpOutput += "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
+
+      await message.reply(helpOutput);
       break;
+    }
     default:
       // Unknown command - stay quiet rather than spamming the channel.
       break;
@@ -65,8 +78,6 @@ client.on("messageCreate", async (message) => {
 });
 
 // --- Bonus: proactively post to a channel when the backend raises an alert ---
-// The bot connects to the SAME backend Socket.io server the dashboard uses,
-// so it reacts to "alert:new" events in real time (no polling needed).
 function connectAlertSocket() {
   if (!ALERT_CHANNEL_ID) {
     console.warn("[bot] ALERT_CHANNEL_ID not set - proactive alerts disabled.");
