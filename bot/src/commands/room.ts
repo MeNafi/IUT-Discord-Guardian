@@ -2,14 +2,14 @@ import { Message } from "discord.js";
 import { backendApi } from "../lib/api";
 import { formatRoom } from "../lib/formatters";
 
-// Accepts loose room names: "work1", "workroom1", "drawing", "drawingroom"
+// Updated to match the lowercase names in our database seed
 const ROOM_ALIASES: Record<string, string> = {
-  drawing: "DrawingRoom",
-  drawingroom: "DrawingRoom",
-  work1: "WorkRoom1",
-  workroom1: "WorkRoom1",
-  work2: "WorkRoom2",
-  workroom2: "WorkRoom2",
+  drawing: "drawing",
+  drawingroom: "drawing",
+  work1: "work1",
+  workroom1: "work1",
+  work2: "work2",
+  workroom2: "work2",
 };
 
 function resolveRoomName(input: string): string | null {

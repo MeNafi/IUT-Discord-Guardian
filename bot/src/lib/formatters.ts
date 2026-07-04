@@ -1,8 +1,17 @@
 import { FullSnapshot, RoomSnapshot, UsageResponse } from "./api";
 
-// Turns "WorkRoom1" -> "Work Room 1", "DrawingRoom" -> "Drawing Room"
+// Turns "drawing" -> "Drawing", "work1" -> "Work 1"
 export function humanizeRoomName(name: string): string {
-  return name.replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/\s+/g, " ").trim();
+
+  // First, handle lowercase strings with numbers like work1 -> work 1
+  const spaced = name.replace(/([a-zA-Z])([0-9])/g, "$1 $2");
+
+  // Capitalize the first letter of each word
+  return spaced
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+    .trim();
 }
 
 function summarizeRoom(room: RoomSnapshot): string {
@@ -10,38 +19,65 @@ function summarizeRoom(room: RoomSnapshot): string {
   const lightsOn = room.devices.filter((d) => d.type === "light" && d.isOn).length;
 
   if (fansOn === 0 && lightsOn === 0) {
-    return `${humanizeRoomName(room.name)}: all off`;
+    return `⚫ All devices are OFF`;
   }
 
   const parts: string[] = [];
-  if (fansOn > 0) parts.push(`${fansOn} fan${fansOn > 1 ? "s" : ""} ON`);
-  if (lightsOn > 0) parts.push(`${lightsOn} light${lightsOn > 1 ? "s" : ""} ON`);
+  if (fansOn > 0) parts.push(`💨 ${fansOn} Fan${fansOn > 1 ? "s" : ""} ON`);
+  if (lightsOn > 0) parts.push(`💡 ${lightsOn} Light${lightsOn > 1 ? "s" : ""} ON`);
 
-  return `${humanizeRoomName(room.name)}: ${parts.join(", ")}`;
+  return parts.join(" | ");
 }
 
-// Matches the spec's example: "Drawing Room: 1 fan ON, 2 lights ON. Work Room 1: all off. ..."
+// Gives a structured, beautifully aligned breakdown of all rooms
 export function formatStatus(snapshot: FullSnapshot): string {
-  const lines = snapshot.rooms.map(summarizeRoom);
-  return lines.join(". ") + ".";
+  let output = "\n🏢 **Office IoT System — Live Status**\n";
+  output += "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n";
+
+  const roomBlocks = snapshot.rooms.map((room) => {
+    const summary = summarizeRoom(room);
+    return `📍 **${humanizeRoomName(room.name)}**\n> ${summary}`;
+  });
+
+  return output + roomBlocks.join("\n\n");
 }
 
+// Formats a single room details cleanly with lists
+// Formats a single room details cleanly with perfect alignment
 export function formatRoom(room: RoomSnapshot): string {
-  const summary = summarizeRoom(room);
+  const title = `\n📍 **Room Profile: ${humanizeRoomName(room.name).toUpperCase()}**`;
+  const divider = "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯";
+  
   const deviceLines = room.devices
-    .map((d) => `  • ${d.name} (${d.type}) — ${d.isOn ? "ON" : "OFF"}`)
+    .map((d) => {
+      const indicator = d.isOn ? "🟢" : "▪️"; 
+      const typeIcon = d.type === "fan" ? "💨" : "💡";
+      const statusText = d.isOn ? "**ON**" : "OFF";
+      
+      return `${indicator} ${typeIcon} **${d.name}** — ${statusText} (${d.ratedWatts}W)`;
+    })
     .join("\n");
-  return `**${humanizeRoomName(room.name)}**\n${summary}.\n${deviceLines}`;
+
+  return `${title}\n${divider}\n${deviceLines}`;
 }
 
-// Matches: "Total power right now: 740W. Today's estimated usage: 4.2 kWh."
+// Formats energy usage with clean layout and bold stats
 export function formatUsage(usage: UsageResponse): string {
-  const perRoom = usage.perRoom
-    .map((r) => `${humanizeRoomName(r.room)}: ${r.watts.toFixed(0)}W`)
-    .join(", ");
-  return (
-    `Total power right now: ${usage.totalWattsNow.toFixed(0)}W. ` +
-    `Today's estimated usage: ${usage.estimatedKwhToday} kWh.\n` +
-    `Per room — ${perRoom}.`
-  );
+  let output = "\n⚡ **Real-Time Energy Analytics**\n";
+  output += "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n";
+  output += `• **Total Active Load :** \`${usage.totalWattsNow.toFixed(0)} W\`\n`;
+  output += `• **Accumulated Today :** \`${usage.estimatedKwhToday} kWh\`\n\n`;
+  
+  output += "📊 **Power Distribution Per Room:**\n";
+  output += "```yaml\n";
+  
+  const perRoomLines = usage.perRoom
+    .map((r) => {
+      const roomName = humanizeRoomName(r.room).padEnd(12, " ");
+      return `${roomName}: ${r.watts.toFixed(0)} W`;
+    })
+    .join("\n");
+
+  output += perRoomLines + "\n```";
+  return output;
 }

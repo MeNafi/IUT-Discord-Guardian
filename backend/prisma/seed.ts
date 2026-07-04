@@ -2,19 +2,21 @@ import { PrismaClient, DeviceType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const ROOMS = ["DrawingRoom", "WorkRoom1", "WorkRoom2"];
+// Match room names with discord commands
+const ROOMS = ["drawing", "work1", "work2"];
 
-// Every room: 2 fans (55W each) + 3 lights (15W each) = 5 devices/room, 15 total
 async function main() {
-  console.log("Seeding rooms + devices...");
+  console.log("🌱 Seeding rooms + devices...");
 
   for (const roomName of ROOMS) {
+    // Get or create room
     const room = await prisma.room.upsert({
       where: { name: roomName },
       update: {},
       create: { name: roomName },
     });
 
+    // 2 fans (55W) + 3 lights (15W) per room
     const devicesToCreate = [
       { name: "Fan1", type: DeviceType.fan, ratedWatts: 55 },
       { name: "Fan2", type: DeviceType.fan, ratedWatts: 55 },
@@ -24,6 +26,7 @@ async function main() {
     ];
 
     for (const d of devicesToCreate) {
+      // Upsert devices with random initial state
       await prisma.device.upsert({
         where: { roomId_name: { roomId: room.id, name: d.name } },
         update: {},
@@ -31,19 +34,19 @@ async function main() {
           name: d.name,
           type: d.type,
           ratedWatts: d.ratedWatts,
-          isOn: false,
+          isOn: Math.random() > 0.5, 
           roomId: room.id,
         },
       });
     }
   }
 
-  console.log("Seed complete: 3 rooms x 5 devices = 15 devices.");
+  console.log("✅ Seed complete: 3 rooms x 5 devices = 15 devices injected.");
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("❌ Error during seeding:", e);
     process.exit(1);
   })
   .finally(async () => {
