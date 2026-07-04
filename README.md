@@ -349,8 +349,8 @@ This project is licensed under the MIT License.
 
 <div align="center">
 
-Made with ❤️ for the IUT Hackathon
+Made with for the IUT Hackathon
 
-PowerCord • AI-Powered Discord-Based Smart Office Energy Management
+Elie • AI-Powered Discord-Based Smart Office Energy Management
 
 </div>
