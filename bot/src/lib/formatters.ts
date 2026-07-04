@@ -27,7 +27,7 @@ function summarizeRoom(room: RoomSnapshot): string {
 
 // Gives a structured, beautifully aligned breakdown of all rooms
 export function formatStatus(snapshot: FullSnapshot): string {
-  let output = "\n### 🏢 OFFICE IoT SYSTEM — LIVE STATUS\n";
+  let output = "\n### 🏢 OFFICE IOT SYSTEM — LIVE STATUS\n";
   output += "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
 
   const roomBlocks = snapshot.rooms.map((room) => {

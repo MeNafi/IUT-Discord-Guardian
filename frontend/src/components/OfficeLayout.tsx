@@ -4,10 +4,21 @@ interface Props {
   rooms: RoomSnapshot[];
 }
 
-const ROOM_ORDER = ["DrawingRoom", "WorkRoom1", "WorkRoom2"];
+// ✅ Updated to lowercase keys to match the database seed
+const ROOM_ORDER = ["drawing", "work1", "work2"];
 const ROOM_WIDTH = 260;
 const ROOM_HEIGHT = 220;
 const GAP = 12;
+
+// Helper function to make room names readable (e.g., drawing -> Drawing, work1 -> Work 1)
+function humanizeRoomName(name: string): string {
+  const spaced = name.replace(/([a-zA-Z])([0-9])/g, "$1 $2");
+  return spaced
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+    .trim();
+}
 
 function FanIcon({ isOn, cx, cy }: { isOn: boolean; cx: number; cy: number }) {
   return (
@@ -46,9 +57,10 @@ function LightIcon({ isOn, cx, cy }: { isOn: boolean; cx: number; cy: number }) 
 }
 
 export default function OfficeLayout({ rooms }: Props) {
-  const orderedRooms = ROOM_ORDER.map((name) => rooms.find((r) => r.name === name)).filter(
-    (r): r is RoomSnapshot => Boolean(r)
-  );
+  // Case-insensitive lookup to ensure robust data mapping
+  const orderedRooms = ROOM_ORDER.map((name) => 
+    rooms.find((r) => r.name.toLowerCase() === name.toLowerCase())
+  ).filter((r): r is RoomSnapshot => Boolean(r));
 
   const width = orderedRooms.length * ROOM_WIDTH + (orderedRooms.length - 1) * GAP;
 
@@ -70,9 +82,9 @@ export default function OfficeLayout({ rooms }: Props) {
                 stroke="#3a3f4d"
                 strokeWidth="2"
                 rx="6"
-              />
+                />
               <text x="12" y="22" fill="#e5e7eb" fontSize="14" fontWeight="600">
-                {room.name}
+                {humanizeRoomName(room.name)}
               </text>
 
               {/* fans along the top */}
