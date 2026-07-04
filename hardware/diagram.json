@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "author": "office iot project",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": -50, "attrs": {} },
+
+    { "type": "wokwi-relay-module", "id": "relay1", "top": -280, "left": 350, "attrs": {} },
+    { "type": "wokwi-relay-module", "id": "relay2", "top": -140, "left": 350, "attrs": {} },
+    { "type": "wokwi-relay-module", "id": "relay3", "top": 0,    "left": 350, "attrs": {} },
+    { "type": "wokwi-relay-module", "id": "relay4", "top": 140,  "left": 350, "attrs": {} },
+    { "type": "wokwi-relay-module", "id": "relay5", "top": 280,  "left": 350, "attrs": {} },
+
+    { "type": "wokwi-resistor", "id": "r_fan1",   "top": -300, "left": 620, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r_fan2",   "top": -160, "left": 620, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r_light1", "top": -20,  "left": 620, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r_light2", "top": 120,  "left": 620, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r_light3", "top": 260,  "left": 620, "attrs": { "value": "220" } },
+
+    { "type": "wokwi-led", "id": "led_fan1",   "top": -300, "left": 730, "attrs": { "color": "blue" } },
+    { "type": "wokwi-led", "id": "led_fan2",   "top": -160, "left": 730, "attrs": { "color": "blue" } },
+    { "type": "wokwi-led", "id": "led_light1", "top": -20,  "left": 730, "attrs": { "color": "yellow" } },
+    { "type": "wokwi-led", "id": "led_light2", "top": 120,  "left": 730, "attrs": { "color": "yellow" } },
+    { "type": "wokwi-led", "id": "led_light3", "top": 260,  "left": 730, "attrs": { "color": "yellow" } },
+
+    { "type": "wokwi-potentiometer", "id": "pot_current", "top": 60, "left": -300, "attrs": { "value": "50" } }
+  ],
+  "connections": [
+    ["esp:D16", "relay1:IN",  "green", []],
+    ["esp:VIN", "relay1:VCC", "red",   []],
+    ["esp:GND.1", "relay1:GND", "black", []],
+    ["relay1:COM", "esp:VIN", "red", []],
+    ["relay1:NO", "r_fan1:1", "orange", []],
+    ["r_fan1:2", "led_fan1:A", "orange", []],
+    ["led_fan1:C", "esp:GND.1", "black", []],
+
+    ["esp:D17", "relay2:IN",  "green", []],
+    ["esp:VIN", "relay2:VCC", "red",   []],
+    ["esp:GND.1", "relay2:GND", "black", []],
+    ["relay2:COM", "esp:VIN", "red", []],
+    ["relay2:NO", "r_fan2:1", "orange", []],
+    ["r_fan2:2", "led_fan2:A", "orange", []],
+    ["led_fan2:C", "esp:GND.1", "black", []],
+
+    ["esp:D18", "relay3:IN",  "green", []],
+    ["esp:VIN", "relay3:VCC", "red",   []],
+    ["esp:GND.1", "relay3:GND", "black", []],
+    ["relay3:COM", "esp:VIN", "red", []],
+    ["relay3:NO", "r_light1:1", "orange", []],
+    ["r_light1:2", "led_light1:A", "orange", []],
+    ["led_light1:C", "esp:GND.1", "black", []],
+
+    ["esp:D19", "relay4:IN",  "green", []],
+    ["esp:VIN", "relay4:VCC", "red",   []],
+    ["esp:GND.1", "relay4:GND", "black", []],
+    ["relay4:COM", "esp:VIN", "red", []],
+    ["relay4:NO", "r_light2:1", "orange", []],
+    ["r_light2:2", "led_light2:A", "orange", []],
+    ["led_light2:C", "esp:GND.1", "black", []],
+
+    ["esp:D21", "relay5:IN",  "green", []],
+    ["esp:VIN", "relay5:VCC", "red",   []],
+    ["esp:GND.1", "relay5:GND", "black", []],
+    ["relay5:COM", "esp:VIN", "red", []],
+    ["relay5:NO", "r_light3:1", "orange", []],
+    ["r_light3:2", "led_light3:A", "orange", []],
+    ["led_light3:C", "esp:GND.1", "black", []],
+
+    ["esp:3V3", "pot_current:VCC", "red", []],
+    ["esp:GND.1", "pot_current:GND", "black", []],
+    ["pot_current:SIG", "esp:D34", "purple", []]
+  ],
+  "dependencies": {}
+}

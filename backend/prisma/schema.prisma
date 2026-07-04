@@ -1,0 +1,74 @@
+// Office IoT Monitor - Prisma schema
+// One source of truth shared by the web dashboard and the Discord bot.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DeviceType {
+  fan
+  light
+}
+
+model Room {
+  id        String   @id @default(cuid())
+  name      String   @unique   // "DrawingRoom" | "WorkRoom1" | "WorkRoom2"
+  devices   Device[]
+  alerts    Alert[]
+  createdAt DateTime @default(now())
+}
+
+model Device {
+  id          String     @id @default(cuid())
+  name        String     // "Fan1", "Light1", ...
+  type        DeviceType
+  ratedWatts  Float      // e.g. fan = 60W, light = 15W
+  isOn        Boolean    @default(false)
+  lastChanged DateTime   @default(now())
+
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  readings Reading[]
+  alerts   Alert[]
+
+  @@unique([roomId, name])
+}
+
+// Power readings over time (used for the live power meter + kWh estimate)
+model Reading {
+  id        String   @id @default(cuid())
+  watts     Float
+  amps      Float?
+  timestamp DateTime @default(now())
+
+  deviceId String
+  device   Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, timestamp])
+}
+
+enum AlertType {
+  AFTER_HOURS
+  CONTINUOUS_ON
+}
+
+model Alert {
+  id        String    @id @default(cuid())
+  type      AlertType
+  message   String
+  timestamp DateTime  @default(now())
+  resolved  Boolean   @default(false)
+
+  roomId   String?
+  room     Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  deviceId String?
+  device   Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([resolved, timestamp])
+}
