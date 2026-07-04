@@ -220,16 +220,29 @@ Run
 ```bash
 npm run dev
 ```
+---
 
-Available Commands
+# 🤖 Using Elie (Discord Bot)
 
-```
+**Elie** is your AI-powered Discord assistant for monitoring and managing your smart office in real time. Once the bot is invited to your Discord server, use the following commands:
+
+| Command | Description |
+|---------|-------------|
+| `!status` | Displays the overall office status, including active devices and current power consumption. |
+| `!usage` | Shows the estimated power usage and energy consumption of the office. |
+| `!room drawing` | Displays the live status of all devices in the **Drawing Room**. |
+| `!room work1` | Displays the live status of all devices in **Work Room 1**. |
+| `!room work2` | Displays the live status of all devices in **Work Room 2**. |
+| `!help` | Lists all available commands and their descriptions. |
+
+### Example
+
+```text
 !status
-
-!room work1
-
 !usage
-
+!room drawing
+!room work1
+!room work2
 !help
 ```
 
