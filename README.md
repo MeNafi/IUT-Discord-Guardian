@@ -1,135 +1,364 @@
-# Office IoT Monitor — "Lights, Fans, Discord"
+<div align="center">
 
-Monorepo containing all four deliverables in one place:
+# ⚡ PowerCord
 
-```
-project/
-├── hardware/     Wokwi diagram.json + sketch.ino (ESP32 circuit, 1 room representative)
-├── backend/      Express + Prisma + PostgreSQL + Socket.io (single source of truth)
-├── frontend/     React + TypeScript dashboard (Socket.io client, top-view layout)
-└── bot/          discord.js bot (!status, !room, !usage + proactive alerts)
-```
+### AI-Powered Discord-Based Smart Office Energy Management System
 
-## Architecture (data flow)
-
-```
-[Wokwi ESP32 - Work Room 1]  --POST /api/rooms/update-->
-[Device Simulator - other rooms]  ------------------->  [Express API + PostgreSQL] --Socket.io--> [React Dashboard]
-                                                                    |
-                                                          REST (getSnapshot/getRoom/getUsage)
-                                                                    |
-                                                              [Discord Bot] ---> Discord server
-                                                       (also listens on the same Socket.io
-                                                        for "alert:new" to post proactively)
-```
-
-The backend is the single source of truth — both the dashboard and the bot read from the exact same API/DB, exactly as the architecture requirement asks.
+Monitor and control office lights and fans through **Discord**, visualize live IoT data on a **React Dashboard**, and simulate real hardware using **ESP32 (Wokwi)**.
 
 ---
 
-## Prerequisites (install once)
+![React](https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react)
+![Express](https://img.shields.io/badge/Backend-Express-000000?style=for-the-badge&logo=express)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql)
+![Discord](https://img.shields.io/badge/Discord-Bot-5865F2?style=for-the-badge&logo=discord)
+![ESP32](https://img.shields.io/badge/Hardware-ESP32-E7352C?style=for-the-badge)
+![Socket.io](https://img.shields.io/badge/Realtime-Socket.io-010101?style=for-the-badge&logo=socketdotio)
 
-| Tool | Why | Check |
-|---|---|---|
-| Node.js ≥ 18 | runs backend, frontend, bot | `node -v` |
-| npm | package manager | `npm -v` |
-| PostgreSQL ≥ 14 (local or Docker) | backend database | `psql --version` |
-| A Discord bot token | for the bot | https://discord.com/developers/applications |
-| ngrok (optional) | expose local backend to the Wokwi ESP32 | `ngrok version` |
+</div>
 
-If you don't want to install PostgreSQL locally, run it with Docker:
+---
+
+# 📖 Overview
+
+PowerCord is an AI-powered smart office energy management system built for the **IUT Hackathon**.
+
+The system continuously monitors office lights and fans, provides a live dashboard, and allows users to interact with the office through a Discord bot.
+
+Unlike traditional IoT dashboards, PowerCord makes Discord the primary control interface, allowing employees to monitor office energy usage without opening a separate application.
+
+---
+
+# ✨ Features
+
+- ⚡ Live Office Energy Monitoring
+- 🤖 Discord Bot Integration
+- 📊 Real-time React Dashboard
+- 🔌 ESP32 Hardware Simulation (Wokwi)
+- 📡 Socket.IO Live Updates
+- 🗄 PostgreSQL Database
+- 🚨 Automatic Alert Notifications
+- 🧠 AI-ready Architecture
+- 📱 Responsive Web Dashboard
+
+---
+
+# 🏗 System Architecture
+
+```
+                   +----------------------+
+                   |   ESP32 (Wokwi)      |
+                   +----------+-----------+
+                              |
+                              |
+                    HTTP POST Sensor Data
+                              |
+                              ▼
+                +---------------------------+
+                | Express + PostgreSQL API  |
+                |      (Single Source)      |
+                +-----------+---------------+
+                            |
+              +-------------+-------------+
+              |                           |
+              ▼                           ▼
+      React Dashboard            Discord Bot
+       (Socket.IO)                 (REST API)
+              |                           |
+              +-------------+-------------+
+                            |
+                            ▼
+                      Office Employees
+```
+
+The backend acts as the **single source of truth**, ensuring that both the dashboard and Discord bot always display the same real-time data.
+
+---
+
+# 📂 Project Structure
+
+```
+PowerCord/
+
+│
+├── backend/
+│   ├── src/
+│   ├── prisma/
+│   ├── package.json
+│   └── .env.example
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── .env.example
+│
+├── hardware/
+│   ├── diagram.json
+│   └── sketch.ino
+│
+├── bot/
+│   ├── src/
+│   ├── package.json
+│   └── .env.example
+│
+├── README.md
+├── LICENSE
+└── .gitignore
+```
+
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+- Node.js 18+
+- npm
+- PostgreSQL
+- Discord Bot Token
+- ngrok (optional)
+
+---
+
+## Clone Repository
+
 ```bash
-docker run --name office-iot-db -e POSTGRES_PASSWORD=password -e POSTGRES_DB=office_iot -p 5432:5432 -d postgres:16
+git clone https://github.com/YOUR_USERNAME/powercord.git
+
+cd powercord
 ```
 
 ---
 
-## 1) Backend setup
+# Backend Setup
 
 ```bash
-cd project/backend
+cd backend
+
 npm install
-cp .env.example .env        # edit DATABASE_URL if needed
 
-npx prisma migrate dev --name init
-npm run prisma:seed         # seeds 3 rooms x 5 devices = 15 devices
+cp .env.example .env
 
-npm run dev                 # http://localhost:5000
+npx prisma migrate dev
+
+npm run prisma:seed
+
+npm run dev
 ```
 
-Backend dependencies installed by `npm install`: `express`, `@prisma/client`, `prisma`, `socket.io`, `cors`, `dotenv`, plus TypeScript tooling (`typescript`, `ts-node-dev`, `@types/*`).
+Backend runs on:
 
-## 2) Frontend setup (open a new terminal)
-
-```bash
-cd project/frontend
-npm install
-cp .env.example .env        # VITE_API_URL=http://localhost:5000 by default
-
-npm run dev                 # http://localhost:5173
+```
+http://localhost:5000
 ```
 
-Frontend dependencies: `react`, `react-dom`, `socket.io-client`, plus `vite`, `@vitejs/plugin-react`, `typescript`.
+---
 
-Open `http://localhost:5173` — you should see the office layout, power meter, alerts panel, and device list update live as the backend's simulator changes device states every few seconds.
+# Frontend Setup
 
-## 3) Discord bot setup (open a new terminal)
+Open a new terminal.
 
 ```bash
-cd project/bot
+cd frontend
+
 npm install
+
+cp .env.example .env
+
+npm run dev
+```
+
+Frontend runs on:
+
+```
+http://localhost:5173
+```
+
+---
+
+# Discord Bot Setup
+
+Open another terminal.
+
+```bash
+cd bot
+
+npm install
+
 cp .env.example .env
 ```
 
-Edit `bot/.env`:
-```
-DISCORD_TOKEN=your-bot-token
+Edit your `.env`
+
+```env
+DISCORD_TOKEN=
+
 BACKEND_API_URL=http://localhost:5000
+
 COMMAND_PREFIX=!
-ALERT_CHANNEL_ID=your-channel-id   # optional, enables proactive alert posts
+
+ALERT_CHANNEL_ID=
 ```
 
-Then:
+Run
+
 ```bash
 npm run dev
 ```
 
-In Discord, invite the bot to your server (OAuth2 URL Generator → scope `bot` → permissions `Send Messages`, `Read Message History`), then try:
+Available Commands
+
 ```
 !status
+
 !room work1
+
 !usage
+
 !help
 ```
 
-Bot dependencies: `discord.js`, `dotenv`, `socket.io-client`, plus TypeScript tooling.
+---
 
-## 4) Hardware (Wokwi) — Work Room 1's representative circuit
+# ESP32 Hardware Simulation
 
-1. Go to wokwi.com → New Project → ESP32.
-2. Replace the generated `diagram.json` and `sketch.ino` with the files in `project/hardware/`.
-3. Because Wokwi's simulated network can't reach `localhost`, expose your local backend with ngrok:
-   ```bash
-   ngrok http 5000
-   ```
-   Copy the `https://xxxx.ngrok-free.app` URL into `hardware/sketch.ino`:
-   ```cpp
-   const char* BACKEND_URL = "https://xxxx.ngrok-free.app/api/rooms/update";
-   ```
-4. Run the Wokwi simulation — toggling relays there will now update Work Room 1 live on both the dashboard and the bot.
+PowerCord includes an ESP32 hardware simulation using Wokwi.
+
+### Live Simulation
+
+https://wokwi.com/projects/468550580082556929
+
+If using localhost, expose the backend using ngrok.
+
+```bash
+ngrok http 5000
+```
+
+Replace
+
+```cpp
+const char* BACKEND_URL = "...";
+```
+
+with your ngrok URL.
 
 ---
 
-## Run order (for a live demo)
+# Discord Server
 
-1. PostgreSQL running (Docker or local)
-2. `backend` → `npm run dev`
-3. `frontend` → `npm run dev`
-4. `bot` → `npm run dev`
-5. (optional) Wokwi simulation with `ngrok` tunnel pointed at the backend
+PowerCord Bot Demo Server
 
-## Notes / assumptions
+**Server ID**
 
-- Simulated data covers all 3 rooms by default (`deviceSimulator.ts`); if the ESP32 posts real data for `WorkRoom1`, the simulator backs off that room for 30s so it doesn't fight the real hardware.
-- "Today's estimated kWh" in `/api/usage` is a simplified estimate (`current watts × hours elapsed today`), documented in `backend/src/routes/usage.ts` — not a true time-integrated reading, since there's no continuous real current sensor.
-- Discord bot responses are template-based (not an LLM call) to avoid requiring an extra API key; `bot/src/lib/formatters.ts` is the single place to swap in an LLM call (e.g. OpenAI/Anthropic) if you want the "strongly encouraged" conversational tone — just replace the return values with a generated string built from the same data.
+```
+1522861282020163648
+```
+
+Invite the bot and use the available commands to monitor the office in real time.
+
+---
+
+# Live Data Flow
+
+```
+ESP32
+     │
+     ▼
+
+Express API
+
+     │
+
+PostgreSQL
+
+     │
+
+Socket.IO
+
+     │
+
+ ┌─────────────┬───────────────┐
+ ▼             ▼
+Dashboard   Discord Bot
+```
+
+---
+
+# Environment Variables
+
+## Backend
+
+```env
+DATABASE_URL=
+
+PORT=5000
+```
+
+## Frontend
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+## Bot
+
+```env
+DISCORD_TOKEN=
+
+BACKEND_API_URL=http://localhost:5000
+
+COMMAND_PREFIX=!
+
+ALERT_CHANNEL_ID=
+```
+
+---
+
+# Screenshots
+
+Add screenshots here.
+
+```
+/screenshots
+
+dashboard.png
+
+discord-bot.png
+
+wokwi.png
+```
+
+---
+
+# Future Improvements
+
+- AI Energy Prediction
+- Voice Commands
+- MQTT Support
+- Power Consumption Analytics
+- Mobile App
+- Multiple Office Support
+
+---
+
+# Contributors
+
+**Nafi Sarker**
+
+IUT Hackathon 2026
+
+---
+
+# License
+
+This project is licensed under the MIT License.
+
+---
+
+<div align="center">
+
+Made with ❤️ for the IUT Hackathon
+
+PowerCord • AI-Powered Discord-Based Smart Office Energy Management
+
+</div>
