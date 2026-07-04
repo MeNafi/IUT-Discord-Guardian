@@ -61,7 +61,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Office IoT Dashboard</h1>
+        <h1>Office IOT Dashboard</h1>
         <span className={`connection-status ${connected ? "connected" : "disconnected"}`}>
           {connected ? "● Live" : "○ Reconnecting..."}
         </span>
