@@ -29,6 +29,16 @@ Unlike traditional IoT dashboards, PowerCord makes Discord the primary control i
 
 ---
 
+
+# ESP32 Hardware Simulation
+
+#### PowerCord includes an ESP32 hardware simulation using Wokwi.
+
+### Live Simulation : https://wokwi.com/projects/468550580082556929
+
+---
+
+
 # ✨ Features
 
 - ⚡ Live Office Energy Monitoring
@@ -218,17 +228,6 @@ Available Commands
 !help
 ```
 
----
-
-# ESP32 Hardware Simulation
-
-PowerCord includes an ESP32 hardware simulation using Wokwi.
-
-### Live Simulation
-
-https://wokwi.com/projects/468550580082556929
-
----
 
 # Discord Server
 
@@ -314,19 +313,7 @@ ALERT_CHANNEL_ID=
 
 ---
 
-# Screenshots
-
-Add screenshots here.
-
-```
-/screenshots
-
-dashboard.png
-
-discord-bot.png
-
-wokwi.png
-```
+<!-- Dashboard -->
 
 ---
 
